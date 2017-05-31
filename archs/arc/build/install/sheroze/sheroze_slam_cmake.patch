@@ -1,0 +1,32 @@
+From b44c0e2e40dc6f9b800c9e00c4a17bf5260bde26 Mon Sep 17 00:00:00 2001
+From: Slamdoom <slamdoom@slam.doom>
+Date: Sat, 18 Mar 2017 20:37:47 +0000
+Subject: [PATCH] patch
+
+---
+ slam/CMakeLists.txt | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/slam/CMakeLists.txt b/slam/CMakeLists.txt
+index 3e0a421..adb1a7c 100755
+--- a/slam/CMakeLists.txt
++++ b/slam/CMakeLists.txt
+@@ -57,9 +57,12 @@ set(LIBS
+     ${OpenCV_LIBS} 
+     ${EIGEN3_LIBS}
+     ${Pangolin_LIBRARIES}
+-    ${PROJECT_SOURCE_DIR}/../../Thirdparty/DBoW2/lib/libDBoW2.so
+-    ${PROJECT_SOURCE_DIR}/../../Thirdparty/g2o/lib/libg2o.so
+-    ${PROJECT_SOURCE_DIR}/../../lib/libORB_SLAM2.so
++    #${PROJECT_SOURCE_DIR}/../../Thirdparty/DBoW2/lib/libDBoW2.so
++    #${PROJECT_SOURCE_DIR}/../../Thirdparty/g2o/lib/libg2o.so
++    #${PROJECT_SOURCE_DIR}/../../lib/libORB_SLAM2.so
++    ${ORBSLAM2_LIBRARY}
++    ${BG2O_LIBRARY}
++    ${DBoW2_LIBRARY}
+     ${ZMQ_LIBRARY}
+ )
+ 
+-- 
+2.7.4
+

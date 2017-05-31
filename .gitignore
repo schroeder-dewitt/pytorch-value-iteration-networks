@@ -1,0 +1,6 @@
+src/dataset/
+src/results/
+.idea/
+src/trained/
+*.pyc
+*.pth

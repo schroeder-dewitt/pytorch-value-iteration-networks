@@ -1,0 +1,404 @@
+From 8e93bc9265bbcb1884c43821b8847e6ea970d984 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 27 Feb 2017 15:26:50 +0000
+Subject: [PATCH] get python3 to work
+
+---
+ src/config/__init__.py                    |  10 +-
+ src/config/kitti_model_config.py          |   2 +-
+ src/config/kitti_res50_config.py          |   2 +-
+ src/config/kitti_squeezeDetPlus_config.py |   2 +-
+ src/config/kitti_squeezeDet_config.py     |   2 +-
+ src/config/kitti_vgg16_config.py          |   2 +-
+ src/dataset/__init__.py                   |   4 +-
+ src/dataset/voc_eval.py                   |  12 +-
+ src/dataset/voc_eval.py.bak               | 206 ++++++++++++++++++++++++++++++
+ src/nets/__init__.py                      |   8 +-
+ src/patchfile.patch                       |  25 ++++
+ 11 files changed, 253 insertions(+), 22 deletions(-)
+ create mode 100644 src/dataset/voc_eval.py.bak
+ create mode 100644 src/patchfile.patch
+
+diff --git a/src/config/__init__.py b/src/config/__init__.py
+index dbe4fbd..f1a7eaf 100644
+--- a/src/config/__init__.py
++++ b/src/config/__init__.py
+@@ -1,5 +1,5 @@
+-from kitti_model_config import kitti_model_config
+-from kitti_vgg16_config import kitti_vgg16_config
+-from kitti_res50_config import kitti_res50_config
+-from kitti_squeezeDet_config import kitti_squeezeDet_config
+-from kitti_squeezeDetPlus_config import kitti_squeezeDetPlus_config
++from config.kitti_model_config import kitti_model_config
++from config.kitti_vgg16_config import kitti_vgg16_config
++from config.kitti_res50_config import kitti_res50_config
++from config.kitti_squeezeDet_config import kitti_squeezeDet_config
++from config.kitti_squeezeDetPlus_config import kitti_squeezeDetPlus_config
+diff --git a/src/config/kitti_model_config.py b/src/config/kitti_model_config.py
+index 3bbcd49..9b609b1 100644
+--- a/src/config/kitti_model_config.py
++++ b/src/config/kitti_model_config.py
+@@ -4,7 +4,7 @@
+ 
+ import numpy as np
+ 
+-from config import base_model_config
++from config.config import base_model_config
+ 
+ def kitti_model_config():
+   """Specify the parameters to tune below."""
+diff --git a/src/config/kitti_res50_config.py b/src/config/kitti_res50_config.py
+index 6e0cca4..8f5c222 100644
+--- a/src/config/kitti_res50_config.py
++++ b/src/config/kitti_res50_config.py
+@@ -4,7 +4,7 @@
+ 
+ import numpy as np
+ 
+-from config import base_model_config
++from config.config import base_model_config
+ 
+ def kitti_res50_config():
+   """Specify the parameters to tune below."""
+diff --git a/src/config/kitti_squeezeDetPlus_config.py b/src/config/kitti_squeezeDetPlus_config.py
+index 0ae3c21..e8482ec 100644
+--- a/src/config/kitti_squeezeDetPlus_config.py
++++ b/src/config/kitti_squeezeDetPlus_config.py
+@@ -4,7 +4,7 @@
+ 
+ import numpy as np
+ 
+-from config import base_model_config
++from config.config import base_model_config
+ 
+ def kitti_squeezeDetPlus_config():
+   """Specify the parameters to tune below."""
+diff --git a/src/config/kitti_squeezeDet_config.py b/src/config/kitti_squeezeDet_config.py
+index eb3973d..62f6f19 100644
+--- a/src/config/kitti_squeezeDet_config.py
++++ b/src/config/kitti_squeezeDet_config.py
+@@ -4,7 +4,7 @@
+ 
+ import numpy as np
+ 
+-from config import base_model_config
++from config.config import base_model_config
+ 
+ def kitti_squeezeDet_config():
+   """Specify the parameters to tune below."""
+diff --git a/src/config/kitti_vgg16_config.py b/src/config/kitti_vgg16_config.py
+index 371f203..bfe832a 100644
+--- a/src/config/kitti_vgg16_config.py
++++ b/src/config/kitti_vgg16_config.py
+@@ -4,7 +4,7 @@
+ 
+ import numpy as np
+ 
+-from config import base_model_config
++from config.config import base_model_config
+ 
+ def kitti_vgg16_config():
+   """Specify the parameters to tune below."""
+diff --git a/src/dataset/__init__.py b/src/dataset/__init__.py
+index 82614c8..967d05c 100644
+--- a/src/dataset/__init__.py
++++ b/src/dataset/__init__.py
+@@ -1,2 +1,2 @@
+-from kitti import kitti
+-from pascal_voc import pascal_voc
++from dataset.kitti import kitti
++from dataset.pascal_voc import pascal_voc
+diff --git a/src/dataset/voc_eval.py b/src/dataset/voc_eval.py
+index 3c995b9..63cd0a2 100644
+--- a/src/dataset/voc_eval.py
++++ b/src/dataset/voc_eval.py
+@@ -8,7 +8,7 @@
+ 
+ import xml.etree.ElementTree as ET
+ import os
+-import cPickle
++import pickle
+ import numpy as np
+ 
+ def parse_rec(filename):
+@@ -110,16 +110,16 @@ def voc_eval(detpath,
+         for i, imagename in enumerate(imagenames):
+             recs[imagename] = parse_rec(annopath.format(imagename))
+             if i % 100 == 0:
+-                print 'Reading annotation for {:d}/{:d}'.format(
+-                    i + 1, len(imagenames))
++                print('Reading annotation for {:d}/{:d}'.format(
++                    i + 1, len(imagenames)))
+         # save
+-        print 'Saving cached annotations to {:s}'.format(cachefile)
++        print('Saving cached annotations to {:s}'.format(cachefile))
+         with open(cachefile, 'w') as f:
+-            cPickle.dump(recs, f)
++            pickle.dump(recs, f)
+     else:
+         # load
+         with open(cachefile, 'r') as f:
+-            recs = cPickle.load(f)
++            recs = pickle.load(f)
+ 
+     # extract gt objects for this class
+     class_recs = {}
+diff --git a/src/dataset/voc_eval.py.bak b/src/dataset/voc_eval.py.bak
+new file mode 100644
+index 0000000..3c995b9
+--- /dev/null
++++ b/src/dataset/voc_eval.py.bak
+@@ -0,0 +1,206 @@
++# This file was from
++# https://raw.githubusercontent.com/rbgirshick/py-faster-rcnn/master/lib/datasets/voc_eval.py
++# --------------------------------------------------------
++# Fast/er R-CNN
++# Licensed under The MIT License [see LICENSE for details]
++# Written by Bharath Hariharan
++# --------------------------------------------------------
++
++import xml.etree.ElementTree as ET
++import os
++import cPickle
++import numpy as np
++
++def parse_rec(filename):
++    """ Parse a PASCAL VOC xml file """
++    tree = ET.parse(filename)
++    objects = []
++    for obj in tree.findall('object'):
++        obj_struct = {}
++        obj_struct['name'] = obj.find('name').text
++        obj_struct['pose'] = obj.find('pose').text
++        obj_struct['truncated'] = int(obj.find('truncated').text)
++        obj_struct['difficult'] = int(obj.find('difficult').text)
++        bbox = obj.find('bndbox')
++        obj_struct['bbox'] = [int(bbox.find('xmin').text),
++                              int(bbox.find('ymin').text),
++                              int(bbox.find('xmax').text),
++                              int(bbox.find('ymax').text)]
++        objects.append(obj_struct)
++
++    return objects
++
++def voc_ap(rec, prec, use_07_metric=False):
++    """ ap = voc_ap(rec, prec, [use_07_metric])
++    Compute VOC AP given precision and recall.
++    If use_07_metric is true, uses the
++    VOC 07 11 point method (default:False).
++    """
++    if use_07_metric:
++        # 11 point metric
++        ap = 0.
++        for t in np.arange(0., 1.1, 0.1):
++            if np.sum(rec >= t) == 0:
++                p = 0
++            else:
++                p = np.max(prec[rec >= t])
++            ap = ap + p / 11.
++    else:
++        # correct AP calculation
++        # first append sentinel values at the end
++        mrec = np.concatenate(([0.], rec, [1.]))
++        mpre = np.concatenate(([0.], prec, [0.]))
++
++        # compute the precision envelope
++        for i in range(mpre.size - 1, 0, -1):
++            mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
++
++        # to calculate area under PR curve, look for points
++        # where X axis (recall) changes value
++        i = np.where(mrec[1:] != mrec[:-1])[0]
++
++        # and sum (\Delta recall) * prec
++        ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
++    return ap
++
++def voc_eval(detpath,
++             annopath,
++             imagesetfile,
++             classname,
++             cachedir,
++             ovthresh=0.5,
++             use_07_metric=False):
++    """rec, prec, ap = voc_eval(detpath,
++                                annopath,
++                                imagesetfile,
++                                classname,
++                                [ovthresh],
++                                [use_07_metric])
++
++    Top level function that does the PASCAL VOC evaluation.
++
++    detpath: Path to detections
++        detpath.format(classname) should produce the detection results file.
++    annopath: Path to annotations
++        annopath.format(imagename) should be the xml annotations file.
++    imagesetfile: Text file containing the list of images, one image per line.
++    classname: Category name (duh)
++    cachedir: Directory for caching the annotations
++    [ovthresh]: Overlap threshold (default = 0.5)
++    [use_07_metric]: Whether to use VOC07's 11 point AP computation
++        (default False)
++    """
++    # assumes detections are in detpath.format(classname)
++    # assumes annotations are in annopath.format(imagename)
++    # assumes imagesetfile is a text file with each line an image name
++    # cachedir caches the annotations in a pickle file
++
++    # first load gt
++    if not os.path.isdir(cachedir):
++        os.mkdir(cachedir)
++    cachefile = os.path.join(cachedir, 'annots.pkl')
++    # read list of images
++    with open(imagesetfile, 'r') as f:
++        lines = f.readlines()
++    imagenames = [x.strip() for x in lines]
++
++    if not os.path.isfile(cachefile):
++        # load annots
++        recs = {}
++        for i, imagename in enumerate(imagenames):
++            recs[imagename] = parse_rec(annopath.format(imagename))
++            if i % 100 == 0:
++                print 'Reading annotation for {:d}/{:d}'.format(
++                    i + 1, len(imagenames))
++        # save
++        print 'Saving cached annotations to {:s}'.format(cachefile)
++        with open(cachefile, 'w') as f:
++            cPickle.dump(recs, f)
++    else:
++        # load
++        with open(cachefile, 'r') as f:
++            recs = cPickle.load(f)
++
++    # extract gt objects for this class
++    class_recs = {}
++    npos = 0
++    for imagename in imagenames:
++        R = [obj for obj in recs[imagename] if obj['name'] == classname]
++        bbox = np.array([x['bbox'] for x in R])
++        difficult = np.array([x['difficult'] for x in R]).astype(np.bool)
++        det = [False] * len(R)
++        npos = npos + sum(~difficult)
++        class_recs[imagename] = {'bbox': bbox,
++                                 'difficult': difficult,
++                                 'det': det}
++
++    # read dets
++    detfile = detpath.format(classname)
++    with open(detfile, 'r') as f:
++        lines = f.readlines()
++
++    splitlines = [x.strip().split(' ') for x in lines]
++    image_ids = [x[0] for x in splitlines]
++    confidence = np.array([float(x[1]) for x in splitlines])
++    BB = np.array([[float(z) for z in x[2:]] for x in splitlines])
++
++    if confidence.shape[0] == 0:
++      return 0, 0, 0
++
++    # sort by confidence
++    sorted_ind = np.argsort(-confidence)
++    sorted_scores = np.sort(-confidence)
++    BB = BB[sorted_ind, :]
++    image_ids = [image_ids[x] for x in sorted_ind]
++
++
++    # go down dets and mark TPs and FPs
++    nd = len(image_ids)
++    tp = np.zeros(nd)
++    fp = np.zeros(nd)
++    for d in range(nd):
++        R = class_recs[image_ids[d]]
++        bb = BB[d, :].astype(float)
++        ovmax = -np.inf
++        BBGT = R['bbox'].astype(float)
++
++        if BBGT.size > 0:
++            # compute overlaps
++            # intersection
++            ixmin = np.maximum(BBGT[:, 0], bb[0])
++            iymin = np.maximum(BBGT[:, 1], bb[1])
++            ixmax = np.minimum(BBGT[:, 2], bb[2])
++            iymax = np.minimum(BBGT[:, 3], bb[3])
++            iw = np.maximum(ixmax - ixmin + 1., 0.)
++            ih = np.maximum(iymax - iymin + 1., 0.)
++            inters = iw * ih
++
++            # union
++            uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
++                   (BBGT[:, 2] - BBGT[:, 0] + 1.) *
++                   (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
++
++            overlaps = inters / uni
++            ovmax = np.max(overlaps)
++            jmax = np.argmax(overlaps)
++
++        if ovmax > ovthresh:
++            if not R['difficult'][jmax]:
++                if not R['det'][jmax]:
++                    tp[d] = 1.
++                    R['det'][jmax] = 1
++                else:
++                    fp[d] = 1.
++        else:
++            fp[d] = 1.
++
++    # compute precision recall
++    fp = np.cumsum(fp)
++    tp = np.cumsum(tp)
++    rec = tp / float(npos)
++    # avoid divide by zero in case the first detection matches a difficult
++    # ground truth
++    prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
++    ap = voc_ap(rec, prec, use_07_metric)
++
++    return rec, prec, ap
+diff --git a/src/nets/__init__.py b/src/nets/__init__.py
+index a8da158..dd5d41a 100644
+--- a/src/nets/__init__.py
++++ b/src/nets/__init__.py
+@@ -1,4 +1,4 @@
+-from squeezeDet import SqueezeDet
+-from squeezeDetPlus import SqueezeDetPlus
+-from resnet50_convDet import ResNet50ConvDet
+-from vgg16_convDet import VGG16ConvDet
++from nets.squeezeDet import SqueezeDet
++from nets.squeezeDetPlus import SqueezeDetPlus
++from nets.resnet50_convDet import ResNet50ConvDet
++from nets.vgg16_convDet import VGG16ConvDet
+diff --git a/src/patchfile.patch b/src/patchfile.patch
+new file mode 100644
+index 0000000..a9e3734
+--- /dev/null
++++ b/src/patchfile.patch
+@@ -0,0 +1,25 @@
++From 8ea2af7f59dde0369b70136492694bdde19dd22b Mon Sep 17 00:00:00 2001
++From: Bichen Wu <bichen@berkeley.edu>
++Date: Mon, 13 Feb 2017 15:07:44 -0800
++Subject: [PATCH] Update README.md
++
++---
++ README.md | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/README.md b/README.md
++index e52fe02..fa3afc1 100644
++--- a/README.md
+++++ b/README.md
++@@ -12,7 +12,7 @@ This repository contains a tensorflow implementation of SqueezeDet, a convolutio
++     
++ ## Installation:
++ - Prerequisites:
++-    - Follow instructions to install Tensorflow: https://www.tensorflow.org.
+++    - Follow instructions to install Tensorflow: https://www.tensorflow.org. Version: 0.11.0rc0
++     - Install opencv: http://opencv.org
++     - Other packages that you might also need: easydict, joblib. You can use pip to install these packages:
++     
++-- 
++2.7.4
++
+-- 
+2.7.4
+

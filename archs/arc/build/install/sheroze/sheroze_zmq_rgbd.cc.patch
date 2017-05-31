@@ -1,0 +1,25 @@
+From 26d8d8f25fb3e04cfc80379e35bbc61e5237a0cd Mon Sep 17 00:00:00 2001
+From: Slamdoom <slamdoom@slam.doom>
+Date: Sat, 18 Mar 2017 23:51:46 +0000
+Subject: [PATCH] patch
+
+---
+ slam/zmq_rgbd.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/slam/zmq_rgbd.cc b/slam/zmq_rgbd.cc
+index 4043fb5..fed7ada 100755
+--- a/slam/zmq_rgbd.cc
++++ b/slam/zmq_rgbd.cc
+@@ -8,7 +8,7 @@
+ 
+ #include <opencv2/core/core.hpp>
+ 
+-#include "../../include/System.h"
++#include "./include/System.h"
+ #include "json.hpp"
+ 
+ #include <sstream>
+-- 
+2.7.4
+

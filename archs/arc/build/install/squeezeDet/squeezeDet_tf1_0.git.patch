@@ -1,0 +1,838 @@
+From a92ee71bc124fbda63fcbc80ad49cd7e6278711c Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 27 Feb 2017 16:30:44 +0000
+Subject: [PATCH] update to TF1.0
+
+---
+ .gitignore                                     |   1 +
+ .idea/inspectionProfiles/profiles_settings.xml |   7 +
+ .idea/misc.xml                                 |   4 +
+ .idea/modules.xml                              |   8 +
+ .idea/squeezeDet.iml                           |  11 +
+ .idea/vcs.xml                                  |   6 +
+ .idea/workspace.xml                            | 298 +++++++++++++++++++++++++
+ LICENSE                                        |   0
+ README.md                                      |   0
+ README/det_img.png                             | Bin
+ README/detection_analysis.png                  | Bin
+ README/graph.png                               | Bin
+ README/out_sample.png                          | Bin
+ data/random_split_train_val.py                 |   0
+ src/__init__.py                                |   0
+ src/config/__init__.py                         |   0
+ src/config/config.py                           |   0
+ src/config/kitti_model_config.py               |   0
+ src/config/kitti_res50_config.py               |   0
+ src/config/kitti_squeezeDetPlus_config.py      |   0
+ src/config/kitti_squeezeDet_config.py          |   0
+ src/config/kitti_vgg16_config.py               |   0
+ src/dataset/__init__.py                        |   0
+ src/dataset/imdb.py                            |   0
+ src/dataset/kitti-eval/Makefile                |   0
+ src/dataset/kitti-eval/cpp/.gitignore          |   0
+ src/dataset/kitti-eval/cpp/evaluate_object.cpp |   0
+ src/dataset/kitti-eval/cpp/mail.h              |   0
+ src/dataset/kitti.py                           |   0
+ src/dataset/pascal_voc.py                      |   0
+ src/dataset/voc_eval.py                        |   0
+ src/dataset/voc_eval.py.bak                    |   0
+ src/demo.py                                    |   0
+ src/eval.py                                    |  14 +-
+ src/nets/__init__.py                           |   0
+ src/nets/resnet50_convDet.py                   |   0
+ src/nets/squeezeDet.py                         |   3 +-
+ src/nets/squeezeDetPlus.py                     |   0
+ src/nets/vgg16_convDet.py                      |   0
+ src/nn_skeleton.py                             |  46 ++--
+ src/patchfile.patch                            |  25 ---
+ src/train.py                                   |   4 +-
+ src/utils/__init__.py                          |   0
+ src/utils/caffemodel2pkl.py                    |   0
+ src/utils/util.py                              |   0
+ 45 files changed, 369 insertions(+), 58 deletions(-)
+ mode change 100644 => 100755 .gitignore
+ create mode 100755 .idea/inspectionProfiles/profiles_settings.xml
+ create mode 100755 .idea/misc.xml
+ create mode 100755 .idea/modules.xml
+ create mode 100755 .idea/squeezeDet.iml
+ create mode 100755 .idea/vcs.xml
+ create mode 100755 .idea/workspace.xml
+ mode change 100644 => 100755 LICENSE
+ mode change 100644 => 100755 README.md
+ mode change 100644 => 100755 README/det_img.png
+ mode change 100644 => 100755 README/detection_analysis.png
+ mode change 100644 => 100755 README/graph.png
+ mode change 100644 => 100755 README/out_sample.png
+ mode change 100644 => 100755 data/random_split_train_val.py
+ mode change 100644 => 100755 src/__init__.py
+ mode change 100644 => 100755 src/config/__init__.py
+ mode change 100644 => 100755 src/config/config.py
+ mode change 100644 => 100755 src/config/kitti_model_config.py
+ mode change 100644 => 100755 src/config/kitti_res50_config.py
+ mode change 100644 => 100755 src/config/kitti_squeezeDetPlus_config.py
+ mode change 100644 => 100755 src/config/kitti_squeezeDet_config.py
+ mode change 100644 => 100755 src/config/kitti_vgg16_config.py
+ mode change 100644 => 100755 src/dataset/__init__.py
+ mode change 100644 => 100755 src/dataset/imdb.py
+ mode change 100644 => 100755 src/dataset/kitti-eval/Makefile
+ mode change 100644 => 100755 src/dataset/kitti-eval/cpp/.gitignore
+ mode change 100644 => 100755 src/dataset/kitti-eval/cpp/evaluate_object.cpp
+ mode change 100644 => 100755 src/dataset/kitti-eval/cpp/mail.h
+ mode change 100644 => 100755 src/dataset/kitti.py
+ mode change 100644 => 100755 src/dataset/pascal_voc.py
+ mode change 100644 => 100755 src/dataset/voc_eval.py
+ mode change 100644 => 100755 src/dataset/voc_eval.py.bak
+ mode change 100644 => 100755 src/demo.py
+ mode change 100644 => 100755 src/eval.py
+ mode change 100644 => 100755 src/nets/__init__.py
+ mode change 100644 => 100755 src/nets/resnet50_convDet.py
+ mode change 100644 => 100755 src/nets/squeezeDet.py
+ mode change 100644 => 100755 src/nets/squeezeDetPlus.py
+ mode change 100644 => 100755 src/nets/vgg16_convDet.py
+ mode change 100644 => 100755 src/nn_skeleton.py
+ delete mode 100644 src/patchfile.patch
+ mode change 100644 => 100755 src/train.py
+ mode change 100644 => 100755 src/utils/__init__.py
+ mode change 100644 => 100755 src/utils/caffemodel2pkl.py
+ mode change 100644 => 100755 src/utils/util.py
+
+diff --git a/.gitignore b/.gitignore
+old mode 100644
+new mode 100755
+index 72723e5..71bdcf8
+--- a/.gitignore
++++ b/.gitignore
+@@ -1 +1,2 @@
+ *pyc
++data/
+diff --git a/.idea/inspectionProfiles/profiles_settings.xml b/.idea/inspectionProfiles/profiles_settings.xml
+new file mode 100755
+index 0000000..c23ecac
+--- /dev/null
++++ b/.idea/inspectionProfiles/profiles_settings.xml
+@@ -0,0 +1,7 @@
++<component name="InspectionProjectProfileManager">
++  <settings>
++    <option name="useProjectProfile" value="false" />
++    <option name="USE_PROJECT_PROFILE" value="false" />
++    <version value="1.0" />
++  </settings>
++</component>
+\ No newline at end of file
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100755
+index 0000000..52f34f1
+--- /dev/null
++++ b/.idea/misc.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.5.2 (ssh://root@172.17.0.1:52022/usr/bin/python3)" project-jdk-type="Python SDK" />
++</project>
+\ No newline at end of file
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100755
+index 0000000..578481d
+--- /dev/null
++++ b/.idea/modules.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/squeezeDet.iml" filepath="$PROJECT_DIR$/.idea/squeezeDet.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/squeezeDet.iml b/.idea/squeezeDet.iml
+new file mode 100755
+index 0000000..6711606
+--- /dev/null
++++ b/.idea/squeezeDet.iml
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="PYTHON_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++  <component name="TestRunnerService">
++    <option name="PROJECT_TEST_RUNNER" value="Unittests" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100755
+index 0000000..94a25f7
+--- /dev/null
++++ b/.idea/vcs.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100755
+index 0000000..41091c8
+--- /dev/null
++++ b/.idea/workspace.xml
+@@ -0,0 +1,298 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ChangeListManager">
++    <list default="true" id="62e7bc45-85e0-4bd1-ae1c-2263eb45f2ac" name="Default" comment="">
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README/det_img.png" afterPath="$PROJECT_DIR$/README/det_img.png" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README/detection_analysis.png" afterPath="$PROJECT_DIR$/README/detection_analysis.png" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README/graph.png" afterPath="$PROJECT_DIR$/README/graph.png" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README/out_sample.png" afterPath="$PROJECT_DIR$/README/out_sample.png" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LICENSE" afterPath="$PROJECT_DIR$/LICENSE" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/random_split_train_val.py" afterPath="$PROJECT_DIR$/data/random_split_train_val.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/__init__.py" afterPath="$PROJECT_DIR$/src/__init__.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/__init__.py" afterPath="$PROJECT_DIR$/src/config/__init__.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/config.py" afterPath="$PROJECT_DIR$/src/config/config.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/kitti_model_config.py" afterPath="$PROJECT_DIR$/src/config/kitti_model_config.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/kitti_res50_config.py" afterPath="$PROJECT_DIR$/src/config/kitti_res50_config.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/kitti_squeezeDetPlus_config.py" afterPath="$PROJECT_DIR$/src/config/kitti_squeezeDetPlus_config.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/kitti_squeezeDet_config.py" afterPath="$PROJECT_DIR$/src/config/kitti_squeezeDet_config.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/config/kitti_vgg16_config.py" afterPath="$PROJECT_DIR$/src/config/kitti_vgg16_config.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/__init__.py" afterPath="$PROJECT_DIR$/src/dataset/__init__.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/imdb.py" afterPath="$PROJECT_DIR$/src/dataset/imdb.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/kitti-eval/Makefile" afterPath="$PROJECT_DIR$/src/dataset/kitti-eval/Makefile" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/kitti-eval/cpp/.gitignore" afterPath="$PROJECT_DIR$/src/dataset/kitti-eval/cpp/.gitignore" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/kitti-eval/cpp/evaluate_object.cpp" afterPath="$PROJECT_DIR$/src/dataset/kitti-eval/cpp/evaluate_object.cpp" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/kitti-eval/cpp/mail.h" afterPath="$PROJECT_DIR$/src/dataset/kitti-eval/cpp/mail.h" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/kitti.py" afterPath="$PROJECT_DIR$/src/dataset/kitti.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/pascal_voc.py" afterPath="$PROJECT_DIR$/src/dataset/pascal_voc.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/voc_eval.py" afterPath="$PROJECT_DIR$/src/dataset/voc_eval.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dataset/voc_eval.py.bak" afterPath="$PROJECT_DIR$/src/dataset/voc_eval.py.bak" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/demo.py" afterPath="$PROJECT_DIR$/src/demo.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/eval.py" afterPath="$PROJECT_DIR$/src/eval.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/nets/__init__.py" afterPath="$PROJECT_DIR$/src/nets/__init__.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/nets/resnet50_convDet.py" afterPath="$PROJECT_DIR$/src/nets/resnet50_convDet.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/nets/squeezeDet.py" afterPath="$PROJECT_DIR$/src/nets/squeezeDet.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/nets/squeezeDetPlus.py" afterPath="$PROJECT_DIR$/src/nets/squeezeDetPlus.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/nets/vgg16_convDet.py" afterPath="$PROJECT_DIR$/src/nets/vgg16_convDet.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/nn_skeleton.py" afterPath="$PROJECT_DIR$/src/nn_skeleton.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/patchfile.patch" afterPath="$PROJECT_DIR$/src/patchfile.patch" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/train.py" afterPath="$PROJECT_DIR$/src/train.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/__init__.py" afterPath="$PROJECT_DIR$/src/utils/__init__.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/caffemodel2pkl.py" afterPath="$PROJECT_DIR$/src/utils/caffemodel2pkl.py" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/util.py" afterPath="$PROJECT_DIR$/src/utils/util.py" />
++    </list>
++    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
++    <option name="TRACKING_ENABLED" value="true" />
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="CreatePatchCommitExecutor">
++    <option name="PATCH_PATH" value="" />
++  </component>
++  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
++  <component name="FileEditorManager">
++    <leaf>
++      <file leaf-file-name="nn_skeleton.py" pinned="false" current-in-tab="true">
++        <entry file="file://$PROJECT_DIR$/src/nn_skeleton.py">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="406">
++              <caret line="353" column="52" lean-forward="true" selection-start-line="353" selection-start-column="52" selection-end-line="353" selection-end-column="52" />
++              <folding />
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/train.py">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="561">
++              <caret line="253" column="40" lean-forward="true" selection-start-line="253" selection-start-column="40" selection-end-line="253" selection-end-column="40" />
++              <folding />
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="eval.py" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/eval.py">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="236">
++              <caret line="112" column="10" lean-forward="false" selection-start-line="112" selection-start-column="10" selection-end-line="112" selection-end-column="10" />
++              <folding />
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="squeezeDet.py" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/nets/squeezeDet.py">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="216">
++              <caret line="54" column="29" lean-forward="true" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="29" />
++              <folding />
++            </state>
++          </provider>
++        </entry>
++      </file>
++    </leaf>
++  </component>
++  <component name="FindInProjectRecents">
++    <findStrings>
++      <find>tf.mul</find>
++      <find>tf.unpack</find>
++      <find>tf.histogram_summary</find>
++      <find>tf.scalar_summary</find>
++      <find>tf.pack</find>
++      <find>tf.sub</find>
++      <find>tf.image_summary</find>
++    </findStrings>
++    <replaceStrings>
++      <replace>tf.multiply</replace>
++      <replace>tf.unstack</replace>
++      <replace>tf.summary.histogram</replace>
++      <replace>tf.summary.scalar</replace>
++      <replace>tf.stack</replace>
++      <replace>tf.subtract</replace>
++      <replace>tf.summary.image</replace>
++    </replaceStrings>
++    <dirStrings>
++      <dir>$PROJECT_DIR$</dir>
++    </dirStrings>
++  </component>
++  <component name="Git.Settings">
++    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++  </component>
++  <component name="IdeDocumentHistory">
++    <option name="CHANGED_PATHS">
++      <list>
++        <option value="$PROJECT_DIR$/src/nets/squeezeDet.py" />
++        <option value="$PROJECT_DIR$/src/eval.py" />
++        <option value="$PROJECT_DIR$/src/train.py" />
++        <option value="$PROJECT_DIR$/src/nn_skeleton.py" />
++      </list>
++    </option>
++  </component>
++  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
++  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
++  <component name="JsGulpfileManager">
++    <detection-done>true</detection-done>
++    <sorting>DEFINITION_ORDER</sorting>
++  </component>
++  <component name="ProjectFrameBounds">
++    <option name="x" value="65" />
++    <option name="y" value="24" />
++    <option name="width" value="1855" />
++    <option name="height" value="1176" />
++  </component>
++  <component name="ProjectView">
++    <navigator currentView="ProjectPane" proportions="" version="1">
++      <flattenPackages />
++      <showMembers />
++      <showModules />
++      <showLibraryContents />
++      <hideEmptyPackages />
++      <abbreviatePackageNames />
++      <autoscrollToSource />
++      <autoscrollFromSource />
++      <sortByType />
++      <manualOrder />
++      <foldersAlwaysOnTop value="true" />
++    </navigator>
++    <panes>
++      <pane id="Scope" />
++      <pane id="Scratches" />
++      <pane id="ProjectPane">
++        <subPane>
++          <PATH>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="squeezeDet" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="squeezeDet" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
++            </PATH_ELEMENT>
++          </PATH>
++          <PATH>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="squeezeDet" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="squeezeDet" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="src" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
++            </PATH_ELEMENT>
++          </PATH>
++          <PATH>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="squeezeDet" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="squeezeDet" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="src" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="nets" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
++            </PATH_ELEMENT>
++          </PATH>
++        </subPane>
++      </pane>
++    </panes>
++  </component>
++  <component name="PropertiesComponent">
++    <property name="WebServerToolWindowFactoryState" value="false" />
++  </component>
++  <component name="ShelveChangesManager" show_recycled="false">
++    <option name="remove_strategy" value="false" />
++  </component>
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="62e7bc45-85e0-4bd1-ae1c-2263eb45f2ac" name="Default" comment="" />
++      <created>1488209982431</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1488209982431</updated>
++    </task>
++    <servers />
++  </component>
++  <component name="ToolWindowManager">
++    <frame x="65" y="24" width="1855" height="1176" extended-state="6" />
++    <editor active="true" />
++    <layout>
++      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
++      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
++      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
++      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
++      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
++      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32970026" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
++      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
++      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
++      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
++      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
++      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
++      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
++      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
++      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
++      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
++      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
++      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
++      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
++      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
++    </layout>
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="processedProjectFiles" value="true" />
++  </component>
++  <component name="VcsContentAnnotationSettings">
++    <option name="myLimit" value="2678400000" />
++  </component>
++  <component name="XDebuggerManager">
++    <breakpoint-manager />
++    <watches-manager />
++  </component>
++  <component name="editorHistoryManager">
++    <entry file="file://$PROJECT_DIR$/src/nets/squeezeDet.py">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="216">
++          <caret line="54" column="29" lean-forward="true" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="29" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/eval.py">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="236">
++          <caret line="112" column="10" lean-forward="false" selection-start-line="112" selection-start-column="10" selection-end-line="112" selection-end-column="10" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/train.py">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="561">
++          <caret line="253" column="40" lean-forward="true" selection-start-line="253" selection-start-column="40" selection-end-line="253" selection-end-column="40" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/nn_skeleton.py">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="406">
++          <caret line="353" column="52" lean-forward="true" selection-start-line="353" selection-start-column="52" selection-end-line="353" selection-end-column="52" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/LICENSE b/LICENSE
+old mode 100644
+new mode 100755
+diff --git a/README.md b/README.md
+old mode 100644
+new mode 100755
+diff --git a/README/det_img.png b/README/det_img.png
+old mode 100644
+new mode 100755
+diff --git a/README/detection_analysis.png b/README/detection_analysis.png
+old mode 100644
+new mode 100755
+diff --git a/README/graph.png b/README/graph.png
+old mode 100644
+new mode 100755
+diff --git a/README/out_sample.png b/README/out_sample.png
+old mode 100644
+new mode 100755
+diff --git a/data/random_split_train_val.py b/data/random_split_train_val.py
+old mode 100644
+new mode 100755
+diff --git a/src/__init__.py b/src/__init__.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/__init__.py b/src/config/__init__.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/config.py b/src/config/config.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/kitti_model_config.py b/src/config/kitti_model_config.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/kitti_res50_config.py b/src/config/kitti_res50_config.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/kitti_squeezeDetPlus_config.py b/src/config/kitti_squeezeDetPlus_config.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/kitti_squeezeDet_config.py b/src/config/kitti_squeezeDet_config.py
+old mode 100644
+new mode 100755
+diff --git a/src/config/kitti_vgg16_config.py b/src/config/kitti_vgg16_config.py
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/__init__.py b/src/dataset/__init__.py
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/imdb.py b/src/dataset/imdb.py
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/kitti-eval/Makefile b/src/dataset/kitti-eval/Makefile
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/kitti-eval/cpp/.gitignore b/src/dataset/kitti-eval/cpp/.gitignore
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/kitti-eval/cpp/evaluate_object.cpp b/src/dataset/kitti-eval/cpp/evaluate_object.cpp
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/kitti-eval/cpp/mail.h b/src/dataset/kitti-eval/cpp/mail.h
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/kitti.py b/src/dataset/kitti.py
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/pascal_voc.py b/src/dataset/pascal_voc.py
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/voc_eval.py b/src/dataset/voc_eval.py
+old mode 100644
+new mode 100755
+diff --git a/src/dataset/voc_eval.py.bak b/src/dataset/voc_eval.py.bak
+old mode 100644
+new mode 100755
+diff --git a/src/demo.py b/src/demo.py
+old mode 100644
+new mode 100755
+diff --git a/src/eval.py b/src/eval.py
+old mode 100644
+new mode 100755
+index d477d7c..f9f9373
+--- a/src/eval.py
++++ b/src/eval.py
+@@ -110,24 +110,24 @@ def eval_once(saver, ckpt_path, summary_writer, imdb, model):
+     eval_summary_ops = []
+     for cls, ap in zip(ap_names, aps):
+       eval_summary_ops.append(
+-          tf.scalar_summary('APs/'+cls, ap)
++          tf.summary.scalar('APs/'+cls, ap)
+       )
+       print ('    {}: {:.3f}'.format(cls, ap))
+     print ('    Mean average precision: {:.3f}'.format(np.mean(aps)))
+     eval_summary_ops.append(
+-        tf.scalar_summary('APs/mAP', np.mean(aps))
++        tf.summary.scalar('APs/mAP', np.mean(aps))
+     )
+     eval_summary_ops.append(
+-        tf.scalar_summary('timing/image_detect', _t['im_detect'].average_time)
++        tf.summary.scalar('timing/image_detect', _t['im_detect'].average_time)
+     )
+     eval_summary_ops.append(
+-        tf.scalar_summary('timing/image_read', _t['im_read'].average_time)
++        tf.summary.scalar('timing/image_read', _t['im_read'].average_time)
+     )
+     eval_summary_ops.append(
+-        tf.scalar_summary('timing/post_process', _t['misc'].average_time)
++        tf.summary.scalar('timing/post_process', _t['misc'].average_time)
+     )
+     eval_summary_ops.append(
+-        tf.scalar_summary('num_detections_per_image', num_detection/num_images)
++        tf.summary.scalar('num_detections_per_image', num_detection/num_images)
+     )
+ 
+     print ('Analyzing detections...')
+@@ -135,7 +135,7 @@ def eval_once(saver, ckpt_path, summary_writer, imdb, model):
+         FLAGS.eval_dir, global_step)
+     for k, v in stats.iteritems():
+       eval_summary_ops.append(
+-          tf.scalar_summary(
++          tf.summary.scalar(
+             'Detection Analysis/'+k, v)
+       )
+ 
+diff --git a/src/nets/__init__.py b/src/nets/__init__.py
+old mode 100644
+new mode 100755
+diff --git a/src/nets/resnet50_convDet.py b/src/nets/resnet50_convDet.py
+old mode 100644
+new mode 100755
+diff --git a/src/nets/squeezeDet.py b/src/nets/squeezeDet.py
+old mode 100644
+new mode 100755
+index 06a7d9c..7b47b08
+--- a/src/nets/squeezeDet.py
++++ b/src/nets/squeezeDet.py
+@@ -102,4 +102,5 @@ class SqueezeDet(ModelSkeleton):
+         layer_name+'/expand3x3', sq1x1, filters=e3x3, size=3, stride=1,
+         padding='SAME', freeze=freeze)
+ 
+-    return tf.concat(3, [ex1x1, ex3x3], name=layer_name+'/concat')
++    #return tf.concat(3, [ex1x1, ex3x3], name=layer_name+'/concat')
++    return tf.concat(axis=3, values=[ex1x1, ex3x3], name=layer_name+'/concat')
+\ No newline at end of file
+diff --git a/src/nets/squeezeDetPlus.py b/src/nets/squeezeDetPlus.py
+old mode 100644
+new mode 100755
+diff --git a/src/nets/vgg16_convDet.py b/src/nets/vgg16_convDet.py
+old mode 100644
+new mode 100755
+diff --git a/src/nn_skeleton.py b/src/nn_skeleton.py
+old mode 100644
+new mode 100755
+index 8da89ef..c7669aa
+--- a/src/nn_skeleton.py
++++ b/src/nn_skeleton.py
+@@ -26,7 +26,7 @@ def _add_loss_summaries(total_loss):
+   # Attach a scalar summary to all individual losses and the total loss; do the
+   # same for the averaged version of the losses.
+   for l in losses + [total_loss]:
+-    tf.scalar_summary(l.op.name, l)
++    tf.summary.scalar(l.op.name, l)
+ 
+ def _variable_on_device(name, shape, initializer, trainable=True):
+   """Helper to create a Variable.
+@@ -65,7 +65,7 @@ def _variable_with_weight_decay(name, shape, wd, initializer, trainable=True):
+   """
+   var = _variable_on_device(name, shape, initializer, trainable)
+   if wd is not None and trainable:
+-    weight_decay = tf.mul(tf.nn.l2_loss(var), wd, name='weight_loss')
++    weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss')
+     tf.add_to_collection('losses', weight_decay)
+   return var
+ 
+@@ -159,7 +159,7 @@ class ModelSkeleton:
+ 
+     with tf.variable_scope('bbox') as scope:
+       with tf.variable_scope('stretching'):
+-        delta_x, delta_y, delta_w, delta_h = tf.unpack(
++        delta_x, delta_y, delta_w, delta_h = tf.unstack(
+             self.pred_box_delta, axis=2)
+ 
+         anchor_x = mc.ANCHOR_BOX[:, 0]
+@@ -211,7 +211,7 @@ class ModelSkeleton:
+         self._activation_summary(ymaxs, 'box_ymax')
+ 
+         self.det_boxes = tf.transpose(
+-            tf.pack(util.bbox_transform_inv([xmins, ymins, xmaxs, ymaxs])),
++            tf.stack(util.bbox_transform_inv([xmins, ymins, xmaxs, ymaxs])),
+             (1, 2, 0), name='bbox'
+         )
+ 
+@@ -225,13 +225,13 @@ class ModelSkeleton:
+ 
+           w = tf.maximum(0.0, xmax-xmin, name='inter_w')
+           h = tf.maximum(0.0, ymax-ymin, name='inter_h')
+-          intersection = tf.mul(w, h, name='intersection')
++          intersection = tf.multiply(w, h, name='intersection')
+ 
+         with tf.variable_scope('union'):
+-          w1 = tf.sub(box1[2], box1[0], name='w1')
+-          h1 = tf.sub(box1[3], box1[1], name='h1')
+-          w2 = tf.sub(box2[2], box2[0], name='w2')
+-          h2 = tf.sub(box2[3], box2[1], name='h2')
++          w1 = tf.subtract(box1[2], box1[0], name='w1')
++          h1 = tf.subtract(box1[3], box1[1], name='h1')
++          w2 = tf.subtract(box2[2], box2[0], name='w2')
++          h2 = tf.subtract(box2[3], box2[1], name='h2')
+ 
+           union = w1*h1 + w2*h2 - intersection
+ 
+@@ -240,8 +240,8 @@ class ModelSkeleton:
+ 
+       self.ious = self.ious.assign(
+           _tensor_iou(
+-              util.bbox_transform(tf.unpack(self.det_boxes, axis=2)),
+-              util.bbox_transform(tf.unpack(self.box_input, axis=2))
++              util.bbox_transform(tf.unstack(self.det_boxes, axis=2)),
++              util.bbox_transform(tf.unstack(self.box_input, axis=2))
+           )
+       )
+       self._activation_summary(self.ious, 'conf_score')
+@@ -249,7 +249,7 @@ class ModelSkeleton:
+     with tf.variable_scope('probability') as scope:
+       self._activation_summary(self.pred_class_probs, 'class_probs')
+ 
+-      probs = tf.mul(
++      probs = tf.multiply(
+           self.pred_class_probs,
+           tf.reshape(self.pred_conf, [mc.BATCH_SIZE, mc.ANCHORS, 1]),
+           name='final_class_prob'
+@@ -289,7 +289,7 @@ class ModelSkeleton:
+           name='confidence_loss'
+       )
+       tf.add_to_collection('losses', self.conf_loss)
+-      tf.scalar_summary('mean iou', tf.reduce_sum(self.ious)/self.num_objects)
++      tf.summary.scalar('mean iou', tf.reduce_sum(self.ious)/self.num_objects)
+ 
+     with tf.variable_scope('bounding_box_regression') as scope:
+       self.bbox_loss = tf.truediv(
+@@ -315,7 +315,7 @@ class ModelSkeleton:
+                                     mc.LR_DECAY_FACTOR,
+                                     staircase=True)
+ 
+-    tf.scalar_summary('learning_rate', lr)
++    tf.summary.scalar('learning_rate', lr)
+ 
+     _add_loss_summaries(self.loss)
+ 
+@@ -329,11 +329,11 @@ class ModelSkeleton:
+     apply_gradient_op = opt.apply_gradients(grads_vars, global_step=self.global_step)
+ 
+     for var in tf.trainable_variables():
+-        tf.histogram_summary(var.op.name, var)
++        tf.summary.histogram(var.op.name, var)
+ 
+     for grad, var in grads_vars:
+       if grad is not None:
+-        tf.histogram_summary(var.op.name + '/gradients', grad)
++        tf.summary.histogram(var.op.name + '/gradients', grad)
+ 
+     with tf.control_dependencies([apply_gradient_op]):
+       self.train_op = tf.no_op(name='train')
+@@ -345,9 +345,9 @@ class ModelSkeleton:
+         tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 3],
+         name='image_to_show'
+     )
+-    self.viz_op = tf.image_summary('sample_detection_results',
++    self.viz_op = tf.summary.image('sample_detection_results',
+         self.image_to_show, collections='image_summary',
+-        max_images=mc.BATCH_SIZE)
++        max_outputs=mc.BATCH_SIZE)
+ 
+   def _conv_bn_layer(
+       self, inputs, conv_param_name, bn_param_name, scale_param_name, filters,
+@@ -721,13 +721,13 @@ class ModelSkeleton:
+       nothing
+     """
+     with tf.variable_scope('activation_summary') as scope:
+-      tf.histogram_summary(
++      tf.summary.histogram(
+           'activation_summary/'+layer_name, x)
+-      tf.scalar_summary(
++      tf.summary.scalar(
+           'activation_summary/'+layer_name+'/sparsity', tf.nn.zero_fraction(x))
+-      tf.scalar_summary(
++      tf.summary.scalar(
+           'activation_summary/'+layer_name+'/average', tf.reduce_mean(x))
+-      tf.scalar_summary(
++      tf.summary.scalar(
+           'activation_summary/'+layer_name+'/max', tf.reduce_max(x))
+-      tf.scalar_summary(
++      tf.summary.scalar(
+           'activation_summary/'+layer_name+'/min', tf.reduce_min(x))
+diff --git a/src/patchfile.patch b/src/patchfile.patch
+deleted file mode 100644
+index a9e3734..0000000
+--- a/src/patchfile.patch
++++ /dev/null
+@@ -1,25 +0,0 @@
+-From 8ea2af7f59dde0369b70136492694bdde19dd22b Mon Sep 17 00:00:00 2001
+-From: Bichen Wu <bichen@berkeley.edu>
+-Date: Mon, 13 Feb 2017 15:07:44 -0800
+-Subject: [PATCH] Update README.md
+-
+----
+- README.md | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-diff --git a/README.md b/README.md
+-index e52fe02..fa3afc1 100644
+---- a/README.md
+-+++ b/README.md
+-@@ -12,7 +12,7 @@ This repository contains a tensorflow implementation of SqueezeDet, a convolutio
+-     
+- ## Installation:
+- - Prerequisites:
+--    - Follow instructions to install Tensorflow: https://www.tensorflow.org.
+-+    - Follow instructions to install Tensorflow: https://www.tensorflow.org. Version: 0.11.0rc0
+-     - Install opencv: http://opencv.org
+-     - Other packages that you might also need: easydict, joblib. You can use pip to install these packages:
+-     
+--- 
+-2.7.4
+-
+diff --git a/src/train.py b/src/train.py
+old mode 100644
+new mode 100755
+index 8d74a89..3c70511
+--- a/src/train.py
++++ b/src/train.py
+@@ -230,9 +230,9 @@ def train():
+         viz_summary = sess.run(
+             model.viz_op, feed_dict={model.image_to_show: image_per_batch})
+ 
+-        num_discarded_labels_op = tf.scalar_summary(
++        num_discarded_labels_op = tf.summary.scalar(
+             'counter/num_discarded_labels', num_discarded_labels)
+-        num_labels_op = tf.scalar_summary(
++        num_labels_op = tf.summary.scalar(
+             'counter/num_labels', num_labels)
+ 
+         counter_summary_str = sess.run([num_discarded_labels_op, num_labels_op])
+diff --git a/src/utils/__init__.py b/src/utils/__init__.py
+old mode 100644
+new mode 100755
+diff --git a/src/utils/caffemodel2pkl.py b/src/utils/caffemodel2pkl.py
+old mode 100644
+new mode 100755
+diff --git a/src/utils/util.py b/src/utils/util.py
+old mode 100644
+new mode 100755
+-- 
+2.7.4
+
